@@ -94,7 +94,7 @@ function draw()
             bubble.bubbleDraw();
         }    
 
-      for(let i = 0; i<10; i++)
+      for(let i = 0; i<10; i++) //Use for loop to speed up the process per frame
         {
           let tempBubble = new bubble(random(width),random(height), 5,color(random(360), random(100), random(50,100))); // HSB
           //let tempBubble = new bubble(mouseX,mouseY, random(5,30),color(random(360), random(100), random(50,100))); // Follow mouse, HSB
