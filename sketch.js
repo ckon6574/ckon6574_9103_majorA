@@ -2,37 +2,112 @@
 let numCircles = 30; // Number of circular shapes
 let circles = []; // Array to store circle objects
 let bubbles = [];
+let song;
+
+let songAmpAnalyser;
+let songAmp;
+
+let songFreqAnalyser; //fft
+let songFreq; //spectrum
+let songWave;//waveform
+let numBins = 128;
+let smoothing = 0.8;
+
+function preload() 
+{
+  //song = loadSound("assets/sound5.wav");
+  //song = loadSound("assets/ssound4.wav"); //https://freesound.org/people/Timbre/sounds/157553/
+  //song = loadSound("assets/sound1.wav"); //https://freesound.org/people/waveplaySFX/sounds/540729/
+  song = loadSound("assets/sound2.wav"); //https://freesound.org/people/joshuaempyre/sounds/250856/
+  //song = loadSound("assets/sound3.wav"); //https://freesound.org/people/bebeto/sounds/554/
+}
 
 
 function setup() 
 {
   angleMode(DEGREES);
-  createCanvas(windowWidth, windowHeight);
+  colorMode(HSB, 360, 100, 100, 255);
+
+  let canvas = createCanvas(windowWidth, windowHeight);
+  canvas.mouseClicked(playSong);
   createNonOverlappingCircle();
+
+  songAmpAnalyser = new p5.Amplitude();
+  songAmpAnalyser.setInput(song);
+
+  songFreqAnalyser = new p5.FFT(smoothing,numBins)
+  song.connect(songFreqAnalyser);
 }
 
 function draw() 
 {
-  background(0,88,130,30);
-  for(const bubble of bubbles)
-    {
-      bubble.bubbleDraw();
-    }
 
+  songAmp = songAmpAnalyser.getLevel();
+  songFreq = songFreqAnalyser.analyze();
+  songWave = songFreqAnalyser.waveform();
+
+  //background(0,88,130,30); //RGB
+
+  background(199,100,51,30); //HSB
   for (const circle of circles)
     {
       circle.display();
     }
 
+  for(const bubble of bubbles)
+    {
+        bubble.bubbleDraw();
+    }    
+
   for(let i = 0; i<10; i++)
     {
-      //let tempBubble = new bubble(mouseX,mouseY, random(5,30),color(random(255), random(255), random(255)));
-      let tempBubble = new bubble(random(width),random(height), 5,color(random(255), random(255), random(255)));
+      //let tempBubble = new bubble(mouseX,mouseY, random(5,30),color(random(255), random(255), random(255))); // Follow mouse, RGB
+      //let tempBubble = new bubble(random(width),random(height), 5,color(random(255), random(255), random(255))); // RGB
+      let tempBubble = new bubble(random(width),random(height), 5,color(random(360), random(100), random(50,100))); // HSB
+      //let tempBubble = new bubble(mouseX,mouseY, random(5,30),color(random(360), random(100), random(50,100))); // Follow mouse, RGB
       if (!checkBubbleOverlap(tempBubble)&&!checkBubbleOverlapWithCircle(tempBubble))
         {
           bubbles.push(tempBubble);
         }
     }
+
+    for (let k=0; k<circles.length;k++)
+      {
+      push();
+      translate(circles[k].x,circles[k].y);
+      beginShape();
+      stroke(circles[k].smallCircleColor);
+      strokeWeight(2);
+      noFill();
+      //fill(circles[k].smallCircleColor);
+      let radius = circles[k].diameter/10;
+      for(let j = 0; j<songWave.length; j++)
+        {
+          let angle = map(j,0,songWave.length,0,360);
+
+          let x = radius * cos(angle);
+          let y = radius * sin(angle);
+
+          let waveRadius = radius + songWave[j] * 100;
+          let waveX = waveRadius * cos(angle);
+          let waveY = waveRadius * sin(angle);
+
+          vertex(waveX,waveY);
+        }
+        endShape(close);
+        pop();
+      }
+        
+}
+
+function playSong()
+{
+    if (song.isPlaying()) {
+      song.pause();
+    } else {
+      song.loop();
+    }
+
 }
 
 function windowResized()
@@ -47,9 +122,11 @@ function createNonOverlappingCircle()
   for (let i = 0; i < numCircles; i++)  //Populating circles in to circles array
   {  
     let diameter = random(100, 250); //diameter of main circle
-    let circleColor = color(random(255), random(255), random(255)); //colour of main circle
-    let numSmallCircles = round(random(30, 50)); // Number of small circles around the diameter
-    let smallCircleColor = color(random(255), random(255), random(255)); //colour of small circle
+    //let circleColor = color(random(255), random(255), random(255)); //colour of main circle RGB
+    let circleColor = color(random(360), random(100), random(50,100)); //colour of main circle HSB
+    let numSmallCircles = round(random(15,20)); // Number of small circles around the diameter
+    //let smallCircleColor = color(random(255), random(255), random(255)); //colour of small circle RGB
+    let smallCircleColor = color(random(360), random(100), random(50,100)); //colour of small circle
     let numLayers = 5; // Number of layers inside the main circle
     let tempCircle = new Circle(random(width), random(height), diameter, circleColor, numSmallCircles, smallCircleColor, numLayers);
 
@@ -142,8 +219,8 @@ class Circle
       }
       else
       {
-        let test = frameCount - 300;
-        let alpha = map(test, 0, 100, 0, 255);
+        let startFadein = frameCount - 300;
+        let alpha = map(startFadein, 0, 100, 0, 255);
         alpha = constrain(alpha, 0, 255);
         this.circleColor.setAlpha(alpha);
         this.smallCircleColor.setAlpha(alpha);
@@ -151,7 +228,7 @@ class Circle
     // Draw main circle
     fill(this.circleColor);
     noStroke();
-    circle(this.x, this.y, this.diameter);
+    circle(this.x, this.y, this.diameter*(songAmp*2.5));
 
     //Drawing the center disk
     for (let i = 0; i<8; i++)
@@ -187,6 +264,8 @@ class bubble
   this.d = d;
   this.colour = colour;
   this.grow = true
+  this.freqRandom = round(random(10,40))
+  this.freqRandomHSB = map(this.freqRandom,10,40,0,360);
   }
 
   bubbleDraw()
@@ -198,13 +277,13 @@ class bubble
     if(this.d>10)
       {
         push();
-        fill(0);
+        fill(0,0,0,150);
         circle(this.x,this.y,this.d*0.75);        
         pop();
 
         push();
-        fill(190);
-        circle(this.x,this.y,this.d*0.5);
+        fill(this.freqRandomHSB,100,100);
+        circle(this.x,this.y,this.d*0.5*(songFreq[this.freqRandom]/150));
         pop();
       }
 
