@@ -24,9 +24,10 @@ function draw()
       circle.display();
     }
 
-  for(let i = 0; i<1000; i++)
+  for(let i = 0; i<10; i++)
     {
-      let tempBubble = new bubble(random(width),random(height), random(5,30),color(random(255), random(255), random(255)));
+      //let tempBubble = new bubble(mouseX,mouseY, random(5,30),color(random(255), random(255), random(255)));
+      let tempBubble = new bubble(random(width),random(height), 5,color(random(255), random(255), random(255)));
       if (!checkBubbleOverlap(tempBubble)&&!checkBubbleOverlapWithCircle(tempBubble))
         {
           bubbles.push(tempBubble);
@@ -88,6 +89,10 @@ function checkBubbleOverlap(tempBubble)
 {
   for (const bubble of bubbles)
     {
+      if(tempBubble == bubble)
+        {
+          continue;
+        }
           let d = dist(tempBubble.x,tempBubble.y,bubble.x,bubble.y);
           if(d <(tempBubble.d/2)+(bubble.d/2)+1.5)
             {
@@ -101,6 +106,10 @@ function checkBubbleOverlapWithCircle(tempBubble)
 {
   for (const circle of circles)
     {
+      if(tempBubble == circle)
+        {
+          continue;
+        }
           let d = dist(tempBubble.x,tempBubble.y,circle.x,circle.y);
           if(d <(tempBubble.d/2)+(circle.diameter/2)+1)
             {
@@ -127,6 +136,18 @@ class Circle
 
   display() 
   {
+    if(frameCount<300)
+      {
+
+      }
+      else
+      {
+        let test = frameCount - 300;
+        let alpha = map(test, 0, 100, 0, 255);
+        alpha = constrain(alpha, 0, 255);
+        this.circleColor.setAlpha(alpha);
+        this.smallCircleColor.setAlpha(alpha);
+
     // Draw main circle
     fill(this.circleColor);
     noStroke();
@@ -135,7 +156,7 @@ class Circle
     //Drawing the center disk
     for (let i = 0; i<8; i++)
       {
-        stroke(0);
+        stroke(0,alpha);
         ellipse(this.x, this.y, this.diameter*0.5-(i*10));
       }
   
@@ -154,6 +175,7 @@ class Circle
           }
       }
   }
+  }
 }
 
 class bubble
@@ -164,6 +186,7 @@ class bubble
   this.y = y;
   this.d = d;
   this.colour = colour;
+  this.grow = true
   }
 
   bubbleDraw()
@@ -184,5 +207,14 @@ class bubble
         circle(this.x,this.y,this.d*0.5);
         pop();
       }
+
+      if (this.grow)
+        {
+          this.d++;
+          if(checkBubbleOverlap(this)||checkBubbleOverlapWithCircle(this))
+            {
+              this.grow=false;
+            }
+        }
   }
 }
