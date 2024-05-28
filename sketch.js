@@ -1,5 +1,7 @@
-let numCircles = 20; // Number of circular shapes
+
+let numCircles = 30; // Number of circular shapes
 let circles = []; // Array to store circle objects
+let bubbles = [];
 
 
 function setup() 
@@ -11,16 +13,31 @@ function setup()
 
 function draw() 
 {
-  background(220);
+  background(0,88,130,30);
+  for(const bubble of bubbles)
+    {
+      bubble.bubbleDraw();
+    }
+
   for (const circle of circles)
     {
       circle.display();
+    }
+
+  for(let i = 0; i<1000; i++)
+    {
+      let tempBubble = new bubble(random(width),random(height), random(5,30),color(random(255), random(255), random(255)));
+      if (!checkBubbleOverlap(tempBubble)&&!checkBubbleOverlapWithCircle(tempBubble))
+        {
+          bubbles.push(tempBubble);
+        }
     }
 }
 
 function windowResized()
 {
   resizeCanvas(windowWidth,windowHeight);
+  bubbles=[]; //Clear bubble array when resize so more circles have a chance to populate.
   createNonOverlappingCircle(); //Call function to create more if number is not met.
 }
 
@@ -28,8 +45,7 @@ function createNonOverlappingCircle()
 {
   for (let i = 0; i < numCircles; i++)  //Populating circles in to circles array
   {  
-    console.log(i);
-    let diameter = random(130, 200); //diameter of main circle
+    let diameter = random(100, 250); //diameter of main circle
     let circleColor = color(random(255), random(255), random(255)); //colour of main circle
     let numSmallCircles = round(random(30, 50)); // Number of small circles around the diameter
     let smallCircleColor = color(random(255), random(255), random(255)); //colour of small circle
@@ -66,6 +82,32 @@ function checkOverlap(tempCircle)
         }
     }
   return false; //If not overlapped, returns false.
+}
+
+function checkBubbleOverlap(tempBubble)
+{
+  for (const bubble of bubbles)
+    {
+          let d = dist(tempBubble.x,tempBubble.y,bubble.x,bubble.y);
+          if(d <(tempBubble.d/2)+(bubble.d/2)+1.5)
+            {
+              return true;
+            }
+      }
+    return false;
+}
+
+function checkBubbleOverlapWithCircle(tempBubble)
+{
+  for (const circle of circles)
+    {
+          let d = dist(tempBubble.x,tempBubble.y,circle.x,circle.y);
+          if(d <(tempBubble.d/2)+(circle.diameter/2)+1)
+            {
+              return true;
+            }
+      }
+    return false;
 }
 
 //Class for generating circle
@@ -110,6 +152,37 @@ class Circle
             fill(this.smallCircleColor);
             ellipse(sx, sy, 10);
           }
+      }
+  }
+}
+
+class bubble
+{
+  constructor(x,y,d,colour)
+  {
+  this.x = x;
+  this.y = y;
+  this.d = d;
+  this.colour = colour;
+  }
+
+  bubbleDraw()
+  {
+    push();
+    fill(this.colour);
+    circle(this.x,this.y,this.d);
+    pop();
+    if(this.d>10)
+      {
+        push();
+        fill(0);
+        circle(this.x,this.y,this.d*0.75);        
+        pop();
+
+        push();
+        fill(190);
+        circle(this.x,this.y,this.d*0.5);
+        pop();
       }
   }
 }
