@@ -7,7 +7,7 @@
 1. Press spacebar to play or pause the audio.
 
 ## Details of the work
-The chosen topic to animate this artwork is audio. Inspired by the artwork "Wheels of Fortune" by Pacita Abad, our group created a base code replicating the main feature of the piece. The primary technique used in constructing this generative art is "circle packing," where circles are randomly generated without overlapping or touching each other. This circle packing technique was implemented both in the base code and in this individual project. In the base code, the main circles are randomly generated without overlapping. However, due to size constraints (they must be large enough to visualise the pattern inside), a significant amount of empty space is left behind. In my individual design, I filled these gaps with smaller circles, referred to as bubbles in the code comments, which are also present in the original artwork.
+The chosen topic to animate this artwork is audio. Inspired by the artwork "Wheels of Fortune" by Pacita Abad, our group created a base code replicating the main feature of the piece. The primary technique used in constructing this generative art is "circle packing," where circles are randomly generated without overlapping or touching each other. This circle packing technique was implemented both in the base code and in this individual project. In the base code, the main circles are randomly generated without overlapping. However, due to size constraints (they must be large enough to visualise the pattern inside), a significant amount of empty space is left behind. In my individual design, I filled these gaps with smaller circles, referred to as bubbles in the code comments, which are also present in the original artwork. The small bubbles remind me of a Nazar, or the eye bead amulet. Animating it could bring the components to life.
 
 For the chosen topic of audio, I incorporated both magnitude content and frequency content into the work. The magnitude (level) of the audio track is analysed through `amplitude.getLevel()`, and the frequency content is analysed through `FFT.analyze()`. The parameters modulated by audio content are as follows:
 
@@ -24,6 +24,8 @@ Although the primary inspiration stemmed from Pacita Abad's work, various compon
 ![Circle Packing image](assets/img1.png)
 
 ![p5js audio generative art](assets/img3.jpg)
+
+![Nazar](assets/img4.jpg)
 
 ![wheels of fortunes](assets/img2.jpg)
 
